@@ -32,7 +32,8 @@ export interface OS {
   problema: string;
   informacoes?: string;
   solucao?: string;
-  tecnico?: string;    
+  tecnico?: string;   
+  prazo?:string; 
 
   status: OSStatus;
   garantiaStatus: GarantiaStatus;
