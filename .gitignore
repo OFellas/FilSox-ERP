@@ -1,0 +1,34 @@
+# Node / dependencies
+node_modules/
+.pnpm-store/
+# Build outputs
+dist/
+build/
+.vite/
+# Electron / executáveis / builds antigos
+dist-electron/
+*.exe
+*.msi
+# Cloudflare Wrangler / Workers
+.wrangler/
+wrangler.toml
+wrangler.jsonc
+api-filsox/
+# Env
+.env
+.env.local
+.env.*.local
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+# Test / coverage
+coverage/
+# cache
+.cache/
