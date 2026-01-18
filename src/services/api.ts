@@ -1,30 +1,28 @@
-import axios from "axios";
+import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
-// URL da sua API (Cloudflare Worker)
-const API_URL = "https://api-filsox.adailtonfelipedeoliveira.workers.dev";
+const API_URL = import.meta.env.VITE_API_URL || "https://api-filsox.adailtonfelipedeoliveira.workers.dev";
 
-// Instância do Axios com interceptores
 const apiClient = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor para adicionar token automaticamente (se existir em localStorage)
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken'); // Assumindo que o token é armazenado aqui
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = localStorage.getItem("authToken");
   if (token) {
+    config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Interceptor para remover token se 401 (sessão expirada)
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken'); // Limpa token inválido
-      const path = window.location.pathname;
-      if (path !== "/login") window.location.href = "/login"; 
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    const status = error.response?.status;
+    if (status === 401) {
+      localStorage.removeItem("authToken");
+      window.location.href = "/#/login"; // se você usa HashRouter
+      // se for BrowserRouter: "/login"
     }
     return Promise.reject(error);
   }
