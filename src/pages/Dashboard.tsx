@@ -7,7 +7,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useModules } from "../contexts/ModuleContext";
 import { ALL_MODULES } from "../config/modules";
 import { 
-    ShieldCheck, ShoppingCart, Users, AlertTriangle, DollarSign, Package, 
+     ShoppingCart, Users, AlertTriangle, DollarSign, Package, 
     Wrench, Clock, CheckCircle, AlertCircle, Home, LogOut, Moon, Sun, Settings,
     Activity, Server
 } from "lucide-react";
