@@ -32,14 +32,18 @@ apiClient.interceptors.response.use(
 
 export const api = {
   // === AUTENTICAÇÃO ===
-  login: async (login: string, senha: string) => {
-    // Worker aceita user/pass ou login/senha — vou mandar os dois pra não ter erro
-    const res = await apiClient.post("/login", { login, senha, user: login, pass: senha });
-    if (res.data?.success && res.data?.token) {
-      localStorage.setItem("authToken", res.data.token);
-    }
-    return res.data;
-  },
+  login: async (user: string, pass: string) => {
+  const res = await apiClient.post("/login", { user, pass });
+
+  if (res.data.success && res.data.token) {
+    localStorage.setItem("authToken", res.data.token);
+
+    // avisa o ModuleContext pra recarregar os modulos_ativos
+    window.dispatchEvent(new Event("authTokenChanged"));
+  }
+
+  return res.data;
+},
 
   // === SISTEMA & CONFIG ===
   getSystemInfo: async () => {
