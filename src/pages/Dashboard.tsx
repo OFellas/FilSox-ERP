@@ -6,9 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useModules } from "../contexts/ModuleContext";
 import { ALL_MODULES } from "../config/modules";
-
 import { 
-    ShoppingCart, Users, AlertTriangle, DollarSign, Package, 
+    ShieldCheck, ShoppingCart, Users, AlertTriangle, DollarSign, Package, 
     Wrench, Clock, CheckCircle, AlertCircle, Home, LogOut, Moon, Sun, Settings,
     Activity, Server
 } from "lucide-react";
@@ -31,12 +30,11 @@ export default function Dashboard() {
   const [config, setConfig] = useState<any>(null);
   const [contagemLojas, setContagemLojas] = useState(0);
 
-  // 1. EFEITO PARA CARREGAR MÓDULOS (Roda apenas UMA vez ao montar)
   useEffect(() => {
       carregarModulos();
-  }, []); // Array vazio garante execução única
+  }, []); 
 
-  // 2. EFEITO PARA CARREGAR DADOS DO DASHBOARD
+  // EFEITO PARA CARREGAR DADOS DO DASHBOARD
   useEffect(() => {
     async function carregar() {
       if (role === 'SUPER_ADMIN') {
@@ -54,8 +52,6 @@ export default function Dashboard() {
           } catch (e) { console.log("Sem produtos"); }
 
           try {
-              // Só carrega financeiro se o módulo estiver ativo
-              // Mas aqui usamos uma verificação segura para não quebrar no loop
               const dadosFin = await api.listarFinanceiro(); 
               const resumo = dadosFin.reduce((acc: any, mov: any) => {
                   if (mov.tipo === 'RECEITA') {
@@ -78,7 +74,7 @@ export default function Dashboard() {
       if(cfg) setConfig(cfg);
     }
     carregar();
-  }, [role]); // Removi 'hasModule' das dependências para evitar o loop
+  }, [role]); 
 
   // --- CÁLCULOS OS ---
   const emAndamento = useMemo(() => lista.filter(os => os.status !== "CONCLUIDA" && os.status !== "AGUARDANDO RETIRADA").length, [lista]);
