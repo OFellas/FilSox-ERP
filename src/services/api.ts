@@ -3,131 +3,162 @@ import axios from "axios";
 // URL da sua API (Cloudflare Worker)
 const API_URL = "https://api-filsox.adailtonfelipedeoliveira.workers.dev";
 
+// Instância do Axios com interceptores
+const apiClient = axios.create({
+  baseURL: API_URL,
+});
+
+// Interceptor para adicionar token automaticamente (se existir em localStorage)
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken'); // Assumindo que o token é armazenado aqui
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Interceptor para remover token se 401 (sessão expirada)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken'); // Limpa token inválido
+      const path = window.location.pathname;
+      if (path !== "/login") window.location.href = "/login"; 
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const api = {
   // === AUTENTICAÇÃO ===
   login: async (user: string, pass: string) => {
-    const res = await axios.post(`${API_URL}/login`, { user, pass });
+    const res = await apiClient.post('/login', { user, pass });
+    // Após login, armazene o token
+    if (res.data.success && res.data.token) {
+      localStorage.setItem('authToken', res.data.token);
+    }
     return res.data;
   },
 
   // === SISTEMA & CONFIG ===
   getSystemInfo: async () => {
     try {
-      const res = await axios.get(`${API_URL}/info`);
+      const res = await apiClient.get('/info');
       return res.data;
     } catch { return null; }
   },
   getConfig: async () => {
-    const res = await axios.get(`${API_URL}/config`);
+    const res = await apiClient.get('/config');
     return res.data;
   },
   salvarConfig: async (config: any) => {
-    await axios.post(`${API_URL}/config`, config);
+    await apiClient.post('/config', config);
   },
 
   // === ORDENS DE SERVIÇO (OS) ===
   listar: async () => {
-    const res = await axios.get(`${API_URL}/os`);
+    const res = await apiClient.get('/os');
     return res.data;
   },
   criar: async (dados: any) => {
-    const res = await axios.post(`${API_URL}/os`, dados);
+    const res = await apiClient.post('/os', dados);
     return res.data;
   },
   buscarPorNumero: async (numero: string) => {
-    const res = await axios.get(`${API_URL}/os/${numero}`);
+    const res = await apiClient.get(`/os/${numero}`);
     return res.data;
   },
   atualizar: async (id: number, dados: any) => {
-    await axios.put(`${API_URL}/os/${id}`, dados);
+    await apiClient.put(`/os/${id}`, dados);
   },
   apagar: async (numero: string) => {
-    await axios.delete(`${API_URL}/os/${numero}`);
+    await apiClient.delete(`/os/${numero}`);
   },
 
   // === PRODUTOS (ESTOQUE) ===
   listarProdutos: async () => {
-    const res = await axios.get(`${API_URL}/produtos`);
+    const res = await apiClient.get('/produtos');
     return res.data;
   },
   criarProduto: async (dados: any) => {
-    await axios.post(`${API_URL}/produtos`, dados);
+    await apiClient.post('/produtos', dados);
   },
   atualizarProduto: async (id: number, dados: any) => {
-    await axios.put(`${API_URL}/produtos/${id}`, dados);
+    await apiClient.put(`/produtos/${id}`, dados);
   },
   apagarProduto: async (id: number) => {
-    await axios.delete(`${API_URL}/produtos/${id}`);
+    await apiClient.delete(`/produtos/${id}`);
   },
 
   // === FINANCEIRO ===
   listarFinanceiro: async () => {
-    const res = await axios.get(`${API_URL}/financeiro`);
+    const res = await apiClient.get('/financeiro');
     return res.data;
   },
   criarMovimentacao: async (dados: any) => {
-    await axios.post(`${API_URL}/financeiro`, dados);
+    await apiClient.post('/financeiro', dados);
   },
   apagarMovimentacao: async (id: number) => {
-    await axios.delete(`${API_URL}/financeiro/${id}`);
+    await apiClient.delete(`/financeiro/${id}`);
   },
   atualizarStatusMovimentacao: async (id: number, status: string) => {
-    await axios.put(`${API_URL}/financeiro/${id}`, { status });
+    await apiClient.put(`/financeiro/${id}`, { status });
   },
 
   // === CLIENTES (CRM) ===
   listarClientes: async () => {
-    const res = await axios.get(`${API_URL}/clientes`);
+    const res = await apiClient.get('/clientes');
     return res.data;
   },
   buscarClienteCompleto: async (id: number) => {
-    const res = await axios.get(`${API_URL}/clientes/${id}`);
+    const res = await apiClient.get(`/clientes/${id}`);
     return res.data;
   },
   criarCliente: async (dados: any) => {
-    await axios.post(`${API_URL}/clientes`, dados);
+    await apiClient.post('/clientes', dados);
   },
   atualizarCliente: async (id: number, dados: any) => {
-    await axios.put(`${API_URL}/clientes/${id}`, dados);
+    await apiClient.put(`/clientes/${id}`, dados);
   },
   apagarCliente: async (id: number) => {
-    await axios.delete(`${API_URL}/clientes/${id}`);
+    await apiClient.delete(`/clientes/${id}`);
   },
 
   // === VENDAS (PDV) ===
   listarVendas: async () => {
-    const res = await axios.get(`${API_URL}/vendas`);
+    const res = await apiClient.get('/vendas');
     return res.data;
   },
   criarVenda: async (dados: any) => {
-    const res = await axios.post(`${API_URL}/vendas`, dados);
+    const res = await apiClient.post('/vendas', dados);
     return res.data;
   },
 
-// === GERENCIAMENTO DE USUÁRIOS ===
+  // === GERENCIAMENTO DE USUÁRIOS ===
   listarUsuarios: async () => {
-    const res = await axios.get(`${API_URL}/usuarios`);
+    const res = await apiClient.get('/usuarios');
     return res.data;
   },
   criarUsuario: async (dados: any) => {
-    await axios.post(`${API_URL}/usuarios`, dados);
+    await apiClient.post('/usuarios', dados);
   },
   atualizarUsuario: async (id: number, dados: any) => {
-    await axios.put(`${API_URL}/usuarios/${id}`, dados);
+    await apiClient.put(`/usuarios/${id}`, dados);
   },
   apagarUsuario: async (id: number) => {
-    await axios.delete(`${API_URL}/usuarios/${id}`);
+    await apiClient.delete(`/usuarios/${id}`);
   },
 
   // === SUPER ADMIN ===
   listarLojas: async () => {
-    const res = await axios.get(`${API_URL}/admin/lojas`);
+    const res = await apiClient.get('/admin/lojas');
     return res.data;
   },
   criarLoja: async (dados: any) => {
-    await axios.post(`${API_URL}/admin/lojas`, dados);
+    await apiClient.post('/admin/lojas', dados);
   },
   atualizarLoja: async (id: number, dados: any) => {
-    await axios.put(`${API_URL}/admin/lojas/${id}`, dados);
+    await apiClient.put(`/admin/lojas/${id}`, dados);
   },
 };

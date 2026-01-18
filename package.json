@@ -5,7 +5,6 @@
   "version": "1.2.0",
   "description": "Sistema ERP",
   "author": "FilSox Labs",
-  "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -42,32 +41,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
-    "wait-on": "^8.0.1"
-  },
-  "build": {
-    "appId": "com.filsoxlabs.fslerp",
-    "productName": "FilSox ERP",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/main.cjs",
-      "package.json"
-    ],
-    "asarUnpack": [
-      "**/*.node"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "electron/filsox-erp.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "artifactName": "${productName} Setup ${version}.${ext}",
-      "deleteAppDataOnUninstall": false
-    }
+    "vite": "^6.0.5"
   }
 }
