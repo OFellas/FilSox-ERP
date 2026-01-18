@@ -16,6 +16,7 @@ import Clientes from "./pages/Clientes";
 import DetalheCliente from "./pages/DetalheCliente";
 import PDV from "./pages/PDV";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
+import OSDashboard from "./pages/OSDashboard.tsx";
 
 function PrivateRoute({ children, roles }: { children: JSX.Element, roles?: string[] }) {
   const { user, role, loading } = useAuth();
@@ -59,6 +60,9 @@ export default function App() {
         <Route path="/clientes/:id" element={<PrivateRoute><DetalheCliente /></PrivateRoute>} />
         <Route path="/pdv" element={<PrivateRoute><PDV /></PrivateRoute>} />
         <Route path="/gerenciar-usuarios" element={<PrivateRoute roles={["ADMIN"]}><GerenciarUsuarios /></PrivateRoute>} />
+        <Route path="/os-dashboard" element={<PrivateRoute><OSDashboard /></PrivateRoute>
+  }
+/>
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
