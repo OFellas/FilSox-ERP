@@ -352,37 +352,7 @@ const ViaImpressaoCelularFormulario = ({
 // ===============================
 // MODELO ANTIGO (SEU) - mantido só pra VIA GERAL continuar igual
 // ===============================
-const DiagramaCelular = () => (
-  <div className="flex gap-2 items-center justify-center opacity-60 mt-1 scale-90 origin-top">
-    <div className="border-2 border-gray-500 rounded-lg w-10 h-20 relative flex flex-col items-center justify-between py-1 bg-white">
-      <div className="w-3 h-0.5 bg-gray-500 rounded-full"></div>
-      <span className="text-[5px] text-gray-500 font-bold tracking-widest -rotate-90">
-        FRENTE
-      </span>
-      <div className="w-1 h-1 border border-gray-500 rounded-full mb-0.5"></div>
-    </div>
-    <div className="border-2 border-gray-500 rounded-lg w-10 h-20 relative flex flex-col items-center justify-start py-2 bg-white">
-      <div className="w-2 h-4 border border-gray-500 rounded mb-1 bg-gray-50"></div>
-      <span className="text-[5px] text-gray-500 font-bold tracking-widest -rotate-90 mt-auto mb-3">
-        VERSO
-      </span>
-    </div>
-  </div>
-);
 
-const SenhaPadrao = () => (
-  <div className="flex flex-col items-center justify-center h-full">
-    <span className="text-[7px] uppercase font-bold mb-1 text-gray-600">Padrão</span>
-    <div className="grid grid-cols-3 gap-2 p-1.5 border border-gray-300 rounded bg-gray-50">
-      {[...Array(9)].map((_, i) => (
-        <div
-          key={i}
-          className="w-2 h-2 bg-white rounded-full border border-gray-400 shadow-sm"
-        ></div>
-      ))}
-    </div>
-  </div>
-);
 
 const CabecalhoOS = ({
   os,
