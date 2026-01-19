@@ -1,7 +1,12 @@
-import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
 const API_URL =
-  import.meta.env.VITE_API_URL || "https://api-filsox.adailtonfelipedeoliveira.workers.dev";
+  import.meta.env.VITE_API_URL ||
+  "https://api-filsox.adailtonfelipedeoliveira.workers.dev";
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -24,26 +29,30 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("authToken");
       localStorage.removeItem("filsox_role");
       localStorage.removeItem("filsox_user");
-      window.location.href = "/#/login"; // HashRouter
+      window.location.href = "/#/login";
     }
     return Promise.reject(error);
   }
 );
 
+// util simples: evita quebrar quando o backend devolve string/undefined
+const toNumber = (v: any, fallback = 0) => {
+  const n = typeof v === "string" ? Number(v.replace(",", ".")) : Number(v);
+  return Number.isFinite(n) ? n : fallback;
+};
+
 export const api = {
   // === AUTENTICAÇÃO ===
   login: async (user: string, pass: string) => {
-  const res = await apiClient.post("/login", { user, pass });
+    const res = await apiClient.post("/login", { user, pass });
 
-  if (res.data.success && res.data.token) {
-    localStorage.setItem("authToken", res.data.token);
+    if (res.data?.success && res.data?.token) {
+      localStorage.setItem("authToken", res.data.token);
+      window.dispatchEvent(new Event("authTokenChanged"));
+    }
 
-    // avisa o ModuleContext pra recarregar os modulos_ativos
-    window.dispatchEvent(new Event("authTokenChanged"));
-  }
-
-  return res.data;
-},
+    return res.data;
+  },
 
   // === SISTEMA & CONFIG ===
   getSystemInfo: async () => {
@@ -60,8 +69,14 @@ export const api = {
     return res.data;
   },
 
+  // OBS: teu worker pode não ter PUT/POST /config.
+  // Esse método fica "pronto" pra quando você implementar.
   salvarConfig: async (config: any) => {
-    await apiClient.post("/config", config);
+    try {
+      await apiClient.put("/config", config);
+    } catch {
+      await apiClient.post("/config", config);
+    }
   },
 
   // === ORDENS DE SERVIÇO (OS) ===
@@ -75,8 +90,15 @@ export const api = {
     return res.data;
   },
 
+  // compat: seu worker aceita /os/:value e tenta id ou numero
   buscarPorNumero: async (numero: string) => {
-    const res = await apiClient.get(`/os/${numero}`);
+    const res = await apiClient.get(`/os/${encodeURIComponent(numero)}`);
+    return res.data;
+  },
+
+  // se você quiser usar o endpoint sem ambiguidade:
+  buscarPorNumeroSeguro: async (numero: string) => {
+    const res = await apiClient.get(`/os-numero/${encodeURIComponent(numero)}`);
     return res.data;
   },
 
@@ -84,8 +106,19 @@ export const api = {
     await apiClient.put(`/os/${id}`, dados);
   },
 
-  apagar: async (numero: string) => {
-    await apiClient.delete(`/os/${numero}`);
+  // apagar por id (e tenta fallback)
+  apagar: async (idOuNumero: string | number) => {
+    const value = String(idOuNumero);
+
+    // tenta como está
+    try {
+      const res = await apiClient.delete(`/os/${encodeURIComponent(value)}`);
+      return res.data;
+    } catch (e) {
+      // fallback: se seu backend tiver rota alternativa futuramente
+      const res2 = await apiClient.delete(`/os-numero/${encodeURIComponent(value)}`);
+      return res2.data;
+    }
   },
 
   // === PRODUTOS (ESTOQUE) ===
@@ -95,15 +128,18 @@ export const api = {
   },
 
   criarProduto: async (dados: any) => {
-    await apiClient.post("/produtos", dados);
+    const res = await apiClient.post("/produtos", dados);
+    return res.data;
   },
 
   atualizarProduto: async (id: number, dados: any) => {
-    await apiClient.put(`/produtos/${id}`, dados);
+    const res = await apiClient.put(`/produtos/${id}`, dados);
+    return res.data;
   },
 
   apagarProduto: async (id: number) => {
-    await apiClient.delete(`/produtos/${id}`);
+    const res = await apiClient.delete(`/produtos/${id}`);
+    return res.data;
   },
 
   // === FINANCEIRO ===
@@ -113,15 +149,18 @@ export const api = {
   },
 
   criarMovimentacao: async (dados: any) => {
-    await apiClient.post("/financeiro", dados);
+    const res = await apiClient.post("/financeiro", dados);
+    return res.data;
   },
 
   apagarMovimentacao: async (id: number) => {
-    await apiClient.delete(`/financeiro/${id}`);
+    const res = await apiClient.delete(`/financeiro/${id}`);
+    return res.data;
   },
 
   atualizarStatusMovimentacao: async (id: number, status: string) => {
-    await apiClient.put(`/financeiro/${id}`, { status });
+    const res = await apiClient.put(`/financeiro/${id}`, { status });
+    return res.data;
   },
 
   // === CLIENTES (CRM) ===
@@ -136,15 +175,18 @@ export const api = {
   },
 
   criarCliente: async (dados: any) => {
-    await apiClient.post("/clientes", dados);
+    const res = await apiClient.post("/clientes", dados);
+    return res.data;
   },
 
   atualizarCliente: async (id: number, dados: any) => {
-    await apiClient.put(`/clientes/${id}`, dados);
+    const res = await apiClient.put(`/clientes/${id}`, dados);
+    return res.data;
   },
 
   apagarCliente: async (id: number) => {
-    await apiClient.delete(`/clientes/${id}`);
+    const res = await apiClient.delete(`/clientes/${id}`);
+    return res.data;
   },
 
   // === VENDAS (PDV) ===
@@ -155,7 +197,23 @@ export const api = {
 
   criarVenda: async (dados: any) => {
     const res = await apiClient.post("/vendas", dados);
-    return res.data;
+
+    // normalização opcional (não atrapalha, só ajuda)
+    // (se preferir, pode remover esse bloco)
+    const d = res.data ?? {};
+    if (d && typeof d === "object") {
+      return {
+        ...d,
+        id: d.id ?? d.vendaId ?? d.venda_id ?? null,
+        subtotal: toNumber(d.subtotal, d.subTotal ?? 0),
+        desconto: toNumber(d.desconto, d.discount ?? 0),
+        total: toNumber(d.total, d.valor_total ?? 0),
+        valor_recebido: toNumber(d.valor_recebido, d.recebido ?? 0),
+        troco: toNumber(d.troco, d.troco_calc ?? 0),
+      };
+    }
+
+    return d;
   },
 
   // === GERENCIAMENTO DE USUÁRIOS ===
@@ -165,15 +223,18 @@ export const api = {
   },
 
   criarUsuario: async (dados: any) => {
-    await apiClient.post("/usuarios", dados);
+    const res = await apiClient.post("/usuarios", dados);
+    return res.data;
   },
 
   atualizarUsuario: async (id: number, dados: any) => {
-    await apiClient.put(`/usuarios/${id}`, dados);
+    const res = await apiClient.put(`/usuarios/${id}`, dados);
+    return res.data;
   },
 
   apagarUsuario: async (id: number) => {
-    await apiClient.delete(`/usuarios/${id}`);
+    const res = await apiClient.delete(`/usuarios/${id}`);
+    return res.data;
   },
 
   // === SUPER ADMIN ===
@@ -184,18 +245,24 @@ export const api = {
 
   criarLoja: async (dados: any) => {
     const res = await apiClient.post("/admin/lojas", dados);
-    return res.data; // deve vir {id, admin_login, admin_senha}
+    return res.data;
   },
 
   atualizarLoja: async (id: number, dados: any) => {
-    await apiClient.put(`/admin/lojas/${id}`, dados); // modulos, nome_loja, etc
+    const res = await apiClient.put(`/admin/lojas/${id}`, dados);
+    return res.data;
   },
 
-  atualizarCredenciaisLoja: async (id: number, dados: { login?: string; senha?: string }) => {
-    await apiClient.put(`/admin/lojas/${id}/credenciais`, dados);
+  atualizarCredenciaisLoja: async (
+    id: number,
+    dados: { login?: string; senha?: string }
+  ) => {
+    const res = await apiClient.put(`/admin/lojas/${id}/credenciais`, dados);
+    return res.data;
   },
 
   apagarLoja: async (id: number) => {
-    await apiClient.delete(`/admin/lojas/${id}`);
+    const res = await apiClient.delete(`/admin/lojas/${id}`);
+    return res.data;
   },
 };

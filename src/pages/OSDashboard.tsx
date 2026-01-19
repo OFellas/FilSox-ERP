@@ -106,17 +106,20 @@ function OSDashboard() {
   }
 
   // ===== métricas =====
-  const emAndamento = useMemo(
-    () => lista.filter((os) => os.status !== "CONCLUIDA" && os.status !== "AGUARDANDO RETIRADA").length,
-    [lista]
-  );
+  // Em andamento = tudo que NÃO é concluída
+const emAndamento = useMemo(() => {
+  return lista.filter((os) => os.status !== "CONCLUIDA").length;
+}, [lista]);
 
-  const pertoDeVencer = useMemo(() => {
-    // Se você já tem a rota /perto-de-vencer funcionando pelo ListaOS,
-    // aqui pode ser 0 por enquanto, ou você implementa a regra real depois.
-    // Vou manter uma regra simples: garantiaStatus === "PERTO_DE_VENCER"
-    return lista.filter((os: any) => os.garantiaStatus === "PERTO_DE_VENCER").length;
-  }, [lista]);
+// Perto de vencer = faltando 5 dias para completar 30 (25..29 dias) e NÃO concluída
+const pertoDeVencer = useMemo(() => {
+  return lista.filter((os) => {
+    if (os.status === "CONCLUIDA") return false;
+
+    const dias = diasDesde(os.dataAbertura);
+    return dias >= 25 && dias <= 29;
+  }).length;
+}, [lista]);
 
   const atrasadas = useMemo(
     () =>
