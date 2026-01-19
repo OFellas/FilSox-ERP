@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@media print {
+  @page { size: A4; margin: 8mm; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 /* ESTILOS GLOBAIS */
 body {
   @apply bg-slate-50 text-gray-800;
