@@ -12,6 +12,10 @@ interface ConfigLoja {
   email: string;
   logo_url: string;
   termos_garantia: string;
+
+  modelo_os_geral?: string;
+  modelo_os_celular?: string;
+  usar_modelo_unico_os?: boolean | number;
 }
 
 // Função auxiliar para tratar valores (Ex: "R$ 1.200,50" -> 1200.50)
@@ -239,20 +243,28 @@ const ViaImpressaoCelularFormulario = ({
         {/* linha 2 */}
         <div className="grid grid-cols-12">
           <div className="col-span-4">
-            <CampoForm label="CPF/CNPJ" value={cpf} valueClassName="text-[18px]" />
-          </div>
-          <div className="col-span-3">
-            <CampoForm label="RG/IE" value={rg} valueClassName="text-[18px]" />
-          </div>
-          <div className="col-span-3">
             <CampoForm
-              label="Telefone"
-              value={tel}
+              label="CPF/CNPJ"
+              value={cpf}
               valueClassName="text-[18px]"
             />
           </div>
+          <div className="col-span-3">
+            <CampoForm
+              label="RG/IE"
+              value={rg}
+              valueClassName="text-[18px]"
+            />
+          </div>
+          <div className="col-span-3">
+            <CampoForm label="Telefone" value={tel} valueClassName="text-[18px]" />
+          </div>
           <div className="col-span-2">
-            <CampoForm label="E-mail" value={email} valueClassName="text-[10px]" />
+            <CampoForm
+              label="E-mail"
+              value={email}
+              valueClassName="text-[10px]"
+            />
           </div>
         </div>
 
@@ -353,7 +365,6 @@ const ViaImpressaoCelularFormulario = ({
 // MODELO ANTIGO (SEU) - mantido só pra VIA GERAL continuar igual
 // ===============================
 
-
 const CabecalhoOS = ({
   os,
   tipo,
@@ -366,7 +377,11 @@ const CabecalhoOS = ({
   <div className="flex justify-between items-start border-b-2 border-black pb-1 mb-1 h-[12%] text-black">
     <div className="w-[30%] flex flex-col justify-center pr-2 border-r border-gray-200">
       {config?.logo_url ? (
-        <img src={config.logo_url} alt="Logo" className="h-10 object-contain object-left mb-1" />
+        <img
+          src={config.logo_url}
+          alt="Logo"
+          className="h-10 object-contain object-left mb-1"
+        />
       ) : (
         <h1 className="font-black text-sm uppercase leading-none mb-1">
           {config?.nome_loja || "NOME DA LOJA"}
@@ -386,7 +401,9 @@ const CabecalhoOS = ({
       </p>
     </div>
     <div className="w-[30%] text-right flex flex-col justify-center pl-2 border-l border-gray-200">
-      <span className="text-[8px] font-bold text-gray-400 uppercase">Número da OS</span>
+      <span className="text-[8px] font-bold text-gray-400 uppercase">
+        Número da OS
+      </span>
       <h2 className="font-black text-xl leading-none my-0.5">{os.numero}</h2>
       <div className="flex justify-end gap-1 items-center">
         <span className="bg-black text-white px-1.5 py-0.5 rounded text-[7px] font-bold uppercase">
@@ -413,20 +430,32 @@ const ViaImpressaoGeral = ({
     <div className="border border-black p-1 mb-1 bg-gray-50">
       <div className="grid grid-cols-4 gap-2 text-[9px]">
         <div className="col-span-2">
-          <span className="font-bold block text-gray-500 uppercase leading-none">Cliente:</span>
-          <span className="text-sm font-bold uppercase leading-none">{os.cliente}</span>
+          <span className="font-bold block text-gray-500 uppercase leading-none">
+            Cliente:
+          </span>
+          <span className="text-sm font-bold uppercase leading-none">
+            {os.cliente}
+          </span>
         </div>
         <div>
-          <span className="font-bold block text-gray-500 uppercase leading-none">CPF/CNPJ:</span>
-          <span className="leading-none">{os.documento || "___________________"}</span>
+          <span className="font-bold block text-gray-500 uppercase leading-none">
+            CPF/CNPJ:
+          </span>
+          <span className="leading-none">
+            {os.documento || "___________________"}
+          </span>
         </div>
         <div>
-          <span className="font-bold block text-gray-500 uppercase leading-none">Telefone:</span>
+          <span className="font-bold block text-gray-500 uppercase leading-none">
+            Telefone:
+          </span>
           <span className="leading-none">{os.telefone}</span>
         </div>
       </div>
       <div className="mt-0.5 text-[9px] border-t border-gray-200 pt-0.5">
-        <span className="font-bold text-gray-500 uppercase">Endereço/Cidade:</span>{" "}
+        <span className="font-bold text-gray-500 uppercase">
+          Endereço/Cidade:
+        </span>{" "}
         {os.cidade}
       </div>
     </div>
@@ -452,7 +481,9 @@ const ViaImpressaoGeral = ({
       <div className="bg-gray-200 px-1 py-0.5 border-b border-black font-bold text-[8px] uppercase">
         Descrição do Problema
       </div>
-      <div className="p-1 text-[10px] font-medium leading-tight">{os.problema}</div>
+      <div className="p-1 text-[10px] font-medium leading-tight">
+        {os.problema}
+      </div>
     </div>
 
     <div className="flex border border-black h-24 mb-1">
@@ -497,7 +528,9 @@ const ViaImpressaoGeral = ({
           <p className="font-bold text-[8px] uppercase">Assinatura Loja</p>
         </div>
       </div>
-      <div className="text-[6px] text-gray-400 text-center mt-0.5">Gerado por FilSox ERP</div>
+      <div className="text-[6px] text-gray-400 text-center mt-0.5">
+        Gerado por FilSox ERP
+      </div>
     </div>
   </div>
 );
@@ -577,7 +610,9 @@ export default function DetalheOS() {
           origem: "OS",
           origem_id: os.numero,
         });
-        alert(`OS Concluída e R$ ${valorNumerico.toFixed(2)} lançado no caixa!`);
+        alert(
+          `OS Concluída e R$ ${valorNumerico.toFixed(2)} lançado no caixa!`
+        );
       } else {
         alert("OS Concluída (Valor zerado, nada lançado no caixa).");
       }
@@ -604,8 +639,20 @@ export default function DetalheOS() {
     navigate("/");
   }
 
-  if (loading) return <div className="p-10 text-center dark:text-white">Carregando...</div>;
+  if (loading)
+    return <div className="p-10 text-center dark:text-white">Carregando...</div>;
   if (!os) return null;
+
+  // ✅ NOVO: decide qual layout usar com base na config da loja
+  const usarModeloUnico = !!(config as any)?.usar_modelo_unico_os;
+  const temModeloCelular =
+    ((config as any)?.modelo_os_celular || "").trim().length > 0;
+  const temModeloGeral =
+    ((config as any)?.modelo_os_geral || "").trim().length > 0;
+
+  const usarLayoutCelular =
+    os.tipo === "CELULAR" &&
+    (temModeloCelular || (usarModeloUnico && temModeloGeral));
 
   return (
     <div className="animate-fade-in">
@@ -615,7 +662,9 @@ export default function DetalheOS() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
               OS #{os.numero}{" "}
-              <span className="text-sm font-normal text-gray-500">({os.tipo})</span>
+              <span className="text-sm font-normal text-gray-500">
+                ({os.tipo})
+              </span>
             </h1>
             <div
               className={`px-3 py-1 rounded font-bold text-xs uppercase ${
@@ -634,14 +683,20 @@ export default function DetalheOS() {
                 Cliente
               </h3>
               <p className="font-bold text-lg dark:text-white">{os.cliente}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">{os.telefone}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">{os.cidade}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {os.telefone}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {os.cidade}
+              </p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded border dark:border-gray-600">
               <h3 className="text-xs font-bold text-gray-400 dark:text-gray-300 uppercase mb-2">
                 Equipamento
               </h3>
-              <p className="font-bold text-lg dark:text-white">{os.equipamento}</p>
+              <p className="font-bold text-lg dark:text-white">
+                {os.equipamento}
+              </p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
                 <span className="font-bold">Defeito:</span> {os.problema}
               </p>
@@ -728,7 +783,10 @@ export default function DetalheOS() {
                     </button>
                     <button
                       onClick={async () => {
-                        await api.atualizar(os.id, { solucao: editSolucao, valor: editValor });
+                        await api.atualizar(os.id, {
+                          solucao: editSolucao,
+                          valor: editValor,
+                        });
                         alert("Salvo (Sem concluir)!");
                       }}
                       className="px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded hover:bg-blue-200"
@@ -745,7 +803,8 @@ export default function DetalheOS() {
                   </>
                 ) : (
                   <span className="px-4 py-2 bg-gray-100 text-gray-500 font-bold rounded border cursor-not-allowed">
-                    Concluída em {new Date(os.dataConclusao || "").toLocaleDateString()}
+                    Concluída em{" "}
+                    {new Date(os.dataConclusao || "").toLocaleDateString()}
                   </span>
                 )}
 
@@ -766,7 +825,7 @@ export default function DetalheOS() {
         id="area-impressao"
         className="hidden print:block w-full bg-white text-black p-4"
       >
-        {os.tipo === "CELULAR" ? (
+        {usarLayoutCelular ? (
           <>
             <ViaImpressaoCelularFormulario os={os} tipo="CLIENTE" config={config} />
             <div className="border-t border-dashed border-gray-300 my-2 text-center text-[8px]">
